@@ -21,7 +21,7 @@
 ### With uv (recommended)
 
 ```bash
-uv tool install fastplate
+uv add fastplate
 ```
 
 ### With pip
@@ -30,7 +30,7 @@ uv tool install fastplate
 pip install fastplate
 ```
 
-### With pipx
+### With pipx (global install)
 
 ```bash
 pipx install fastplate
@@ -38,58 +38,99 @@ pipx install fastplate
 
 ## 🚀 Quick Start
 
-```bash
-# Create a new project in the current directory
-mkdir my-app && cd my-app
-fastplate init --name "My App"
+### Using uv (recommended)
 
-# Or create in a new directory
-fastplate init ./my-app --name "My App"
+```bash
+# Create a new project directory and add fastplate
+mkdir my-app && cd my-app
+uv init
+uv add fastplate
+
+# Initialize the project
+uv run fastplate init --name "My App"
 
 # Start development
 make dev          # FastAPI server at http://localhost:8000
 make npm-watch    # Tailwind CSS watcher (in another terminal)
 ```
 
-## 📖 Usage
+### Using pip/pipx
+
+```bash
+# Create in a new directory
+fastplate init ./my-app --name "My App"
+cd my-app
+
+# Start development
+make dev
+make npm-watch
+```
+
+## 📖 CLI Reference
+
+Fastplate uses a command-based CLI structure.
+
+### Commands
+
+| Command | Description                                     |
+| ------- | ----------------------------------------------- |
+| `init`  | Initialize a new FastAPI + Tailwind CSS project |
+
+### `fastplate init`
+
+Scaffolds a new project with the full FastAPI + Tailwind CSS stack.
 
 ```bash
 fastplate init [OPTIONS] [PATH]
+# or with uv
+uv run fastplate init [OPTIONS] [PATH]
 ```
 
-### Arguments
+#### Arguments
 
-| Argument | Description | Default |
-|----------|-------------|---------|
-| `PATH` | Directory to create the project in | `.` (current directory) |
+| Argument | Description                        | Default                 |
+| -------- | ---------------------------------- | ----------------------- |
+| `PATH`   | Directory to create the project in | `.` (current directory) |
 
-### Options
+#### Options
 
-| Option | Description |
-|--------|-------------|
-| `-n, --name TEXT` | Project name (defaults to directory name) |
-| `--skip-install` | Skip dependency installation |
-| `-f, --force` | Overwrite existing project files |
-| `--help` | Show help message |
+| Option           | Short | Description                            |
+| ---------------- | ----- | -------------------------------------- |
+| `--name TEXT`    | `-n`  | Project name (prompts if not provided) |
+| `--skip-install` |       | Skip automatic dependency installation |
+| `--force`        | `-f`  | Overwrite existing project files       |
+| `--help`         |       | Show help message and exit             |
 
-### Examples
+#### Examples
 
 ```bash
-# Interactive mode (prompts for project name)
-fastplate init
+# Interactive mode - prompts for project name
+uv run fastplate init
 
-# Specify project name
-fastplate init --name "My Awesome App"
+# Specify project name directly
+uv run fastplate init --name "My Awesome App"
 
 # Create in a specific directory
-fastplate init ./projects/my-app --name my-app
+uv run fastplate init ./projects/my-app --name my-app
 
-# Skip dependency installation
-fastplate init --skip-install
+# Skip automatic dependency installation
+uv run fastplate init --skip-install
 
-# Overwrite existing project
-fastplate init --force
+# Overwrite existing project files
+uv run fastplate init --force
+
+# Short flags
+uv run fastplate init -n "My App" -f
 ```
+
+#### What it does
+
+1. **Copies template** - Scaffolds the full project structure into the target directory
+2. **Replaces placeholders** - Injects your project name into config files (`pyproject.toml`, templates, etc.)
+3. **Installs Python deps** - Runs `uv sync` to install FastAPI and dependencies
+4. **Installs npm deps** - Runs `npm install` in `frontend/` for Tailwind CSS
+
+Use `--skip-install` if you want to handle dependency installation manually.
 
 ## 📁 Generated Project Structure
 
@@ -97,33 +138,34 @@ fastplate init --force
 my-app/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py              # FastAPI application
-│   ├── api/                  # API routes
+│   ├── main.py              # FastAPI application entry point
+│   ├── api/                  # API routes (REST endpoints)
 │   ├── core/
 │   │   ├── config.py        # Settings & configuration
-│   │   └── middleware.py
-│   ├── models/              # Database models
-│   ├── schemas/             # Pydantic schemas
-│   ├── services/            # Business logic
-│   └── views/               # HTML view routes
+│   │   └── middleware.py    # Custom middleware
+│   ├── models/              # Database models (SQLAlchemy, etc.)
+│   ├── schemas/             # Pydantic schemas for validation
+│   ├── services/            # Business logic layer
+│   └── views/               # HTML view routes (Jinja2)
 │       └── index.py
 ├── frontend/
+│   ├── package.json         # npm dependencies (Tailwind)
 │   ├── static/
 │   │   └── css/
 │   │       ├── input.css    # Tailwind source
 │   │       └── output.css   # Compiled CSS
 │   └── templates/
-│       ├── base.html        # Base template
-│       ├── components/      # Reusable components
+│       ├── base.html        # Base template with layout
+│       ├── components/      # Reusable Jinja2 components
 │       │   ├── card.html
 │       │   └── navbar.html
 │       └── pages/           # Page templates
 │           └── index.html
 ├── Dockerfile
 ├── docker-compose.yml
-├── Makefile
-├── pyproject.toml
-└── README.md
+├── Makefile                 # Development commands
+├── pyproject.toml           # Python project config
+└── README.md                # Project-specific docs
 ```
 
 ## 🛠️ Development Commands
